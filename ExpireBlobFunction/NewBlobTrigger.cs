@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -12,7 +11,7 @@ namespace ExpireBlobFunction
     {
         [FunctionName("NewBlobTrigger")]
         public static async Task Run(
-            [BlobTrigger("sample-blobs/{name}", Connection = "")]CloudBlockBlob myBlob,
+            [BlobTrigger("%ContainerName%/{name}", Connection = "")]CloudBlockBlob myBlob,
             string name,
             [Table("todeleteblobs")]CloudTable toDeleteBlobsTable,
             TraceWriter log)
@@ -20,14 +19,14 @@ namespace ExpireBlobFunction
             log.Info($"C# Blob trigger for blob\n Name:{myBlob.Uri.AbsoluteUri} ");
 
             // config
-            int timeToLive = 5; // days
-            DateTime expirationTime = DateTime.UtcNow.AddDays(timeToLive);
+            int minutesToLive = int.Parse(Environment.GetEnvironmentVariable("MinutesToLive", EnvironmentVariableTarget.Process));
+            DateTime expirationTime = DateTime.UtcNow.AddMinutes(minutesToLive);
 
             // To Delete Blob Record
             var toDeleteBlobEntity = new ToDeleteBlob()
             {
                 PartitionKey = OliAzurePack.ChronologicalTime.GetReverseChronologicalValue(expirationTime),
-                RowKey = name,
+                RowKey = minutesToLive.ToString(),
                 ExpirationTime = expirationTime,
                 ContainerName = myBlob.Container.Name,
                 BlobName = myBlob.Name
