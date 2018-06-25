@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace ExpireBlobFunction
@@ -11,13 +12,13 @@ namespace ExpireBlobFunction
     {
         [FunctionName("NewBlobTrigger")]
         public static async Task Run(
-            [BlobTrigger("sample-blobs/{name}", Connection = "")]Stream myBlob,
+            [BlobTrigger("sample-blobs/{name}", Connection = "")]CloudBlockBlob myBlob,
             string name,
             [Table("blobinsertlog")]CloudTable blobInsertLog,
             [Table("todeleteblobs")]CloudTable toDeleteBlobsTable,
             TraceWriter log)
         {
-            log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes");
+            log.Info($"C# Blob trigger for blob\n Name:{myBlob.Uri.AbsoluteUri} ");
 
             // config
             int timeToLive = 5; // days
@@ -29,7 +30,8 @@ namespace ExpireBlobFunction
             {
                 PartitionKey = OliAzurePack.ChronologicalTime.ReverseChronologicalValue,
                 RowKey = name,
-                ExpirationTime = expirationTime
+                ExpirationTime = expirationTime,
+                AbsoluteUri = myBlob.Uri.AbsoluteUri
             };
             var updateOperation = TableOperation.InsertOrReplace(insertBlobLogEntity);
             var result = await blobInsertLog.ExecuteAsync(updateOperation);
@@ -39,7 +41,8 @@ namespace ExpireBlobFunction
             {
                 PartitionKey = OliAzurePack.ChronologicalTime.GetReverseChronologicalValue(expirationTime),
                 RowKey = name,
-                ExpirationTime = expirationTime
+                ExpirationTime = expirationTime,
+                AbsoluteUri = myBlob.Uri.AbsoluteUri
             };
             updateOperation = TableOperation.InsertOrReplace(insertBlobLogEntity);
             result = await toDeleteBlobsTable.ExecuteAsync(updateOperation);
@@ -52,11 +55,13 @@ namespace ExpireBlobFunction
     internal class InsertBlobLog : TableEntity
     {
         public DateTime ExpirationTime { get; set; }
+        public string AbsoluteUri { get; set; }
     }
 
     internal class ToDeleteBlob : TableEntity
     {
         public DateTime ExpirationTime { get; set; }
+        public string AbsoluteUri { get; set; }
 
     }
 }
