@@ -14,7 +14,6 @@ namespace ExpireBlobFunction
         public static async Task Run(
             [BlobTrigger("sample-blobs/{name}", Connection = "")]CloudBlockBlob myBlob,
             string name,
-            [Table("blobinsertlog")]CloudTable blobInsertLog,
             [Table("todeleteblobs")]CloudTable toDeleteBlobsTable,
             TraceWriter log)
         {
@@ -24,44 +23,24 @@ namespace ExpireBlobFunction
             int timeToLive = 5; // days
             DateTime expirationTime = DateTime.UtcNow.AddDays(timeToLive);
 
-
-            // Insert Blob Log
-            var insertBlobLogEntity = new InsertBlobLog()
-            {
-                PartitionKey = OliAzurePack.ChronologicalTime.ReverseChronologicalValue,
-                RowKey = name,
-                ExpirationTime = expirationTime,
-                AbsoluteUri = myBlob.Uri.AbsoluteUri
-            };
-            var updateOperation = TableOperation.InsertOrReplace(insertBlobLogEntity);
-            var result = await blobInsertLog.ExecuteAsync(updateOperation);
-
-            // To Delete Blob 
+            // To Delete Blob Record
             var toDeleteBlobEntity = new ToDeleteBlob()
             {
                 PartitionKey = OliAzurePack.ChronologicalTime.GetReverseChronologicalValue(expirationTime),
                 RowKey = name,
                 ExpirationTime = expirationTime,
-                AbsoluteUri = myBlob.Uri.AbsoluteUri
+                ContainerName = myBlob.Container.Name,
+                BlobName = myBlob.Name
             };
-            updateOperation = TableOperation.InsertOrReplace(insertBlobLogEntity);
-            result = await toDeleteBlobsTable.ExecuteAsync(updateOperation);
-
-            //return new HttpResponseMessage((HttpStatusCode)result.HttpStatusCode);
-
+            var insertOperation = TableOperation.InsertOrReplace(toDeleteBlobEntity);
+            await toDeleteBlobsTable.ExecuteAsync(insertOperation);
         }
     }
 
-    internal class InsertBlobLog : TableEntity
+    public class ToDeleteBlob : TableEntity
     {
         public DateTime ExpirationTime { get; set; }
-        public string AbsoluteUri { get; set; }
-    }
-
-    internal class ToDeleteBlob : TableEntity
-    {
-        public DateTime ExpirationTime { get; set; }
-        public string AbsoluteUri { get; set; }
-
+        public string ContainerName { get; set; }
+        public string BlobName { get; set; }
     }
 }
