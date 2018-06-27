@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appName": {
-      "value": "expblobfunc23452"
+      "value": "expblobfunc0815"
     },
     "storageAccountName": {
       "value": "expireblobfunction"
@@ -13,6 +13,9 @@
     },
     "minutesToLive": {
       "value": 13
+    },
+    "deleteBlobCronExpression": {
+      "value": "0 */5 * * * *"
     }
   }
 }

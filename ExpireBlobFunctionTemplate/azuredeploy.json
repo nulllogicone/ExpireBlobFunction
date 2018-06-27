@@ -31,7 +31,7 @@
       "type": "string",
       "defaultValue": "0 0 * * * *",
       "metadata": {
-        "description": "The schedule to run the delete old blobs Function"
+        "description": "The schedule to run the delete old blobs Function (default every hour)"
       }
     },
     "location": {
@@ -128,7 +128,7 @@
             },
             {
               "name": "DeleteBlobCronExpression",
-              "value": "deleteBlobCronExpression"
+              "value": "[parameters('deleteBlobCronExpression')]"
             },
             {
               "name": "AppInsights_InstrumentationKey",
