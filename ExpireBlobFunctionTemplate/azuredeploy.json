@@ -27,6 +27,13 @@
         "description": "The time in minutes of the blobs before they will be deleted (default 30 days)"
       }
     },
+    "deleteBlobCronExpression": {
+      "type": "string",
+      "defaultValue": "0 0 * * * *",
+      "metadata": {
+        "description": "The schedule to run the delete old blobs Function"
+      }
+    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
@@ -118,6 +125,10 @@
             {
               "name": "MinutesToLive",
               "value": "[parameters('minutesToLive')]"
+            },
+            {
+              "name": "DeleteBlobCronExpression",
+              "value": "deleteBlobCronExpression"
             },
             {
               "name": "AppInsights_InstrumentationKey",
