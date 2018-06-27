@@ -8,16 +8,23 @@
         "description": "The name of the function app that you wish to create."
       }
     },
-    "storageName": {
+    "storageAccountName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the storage account with the blobs."
+        "description": "The name of an existing storage account"
       }
     },
-    "hostingPlanName": {
+    "containerName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the hosting plan (consumption)"
+        "description": "The container name in the existing storage account"
+      }
+    },
+    "minutesToLive": {
+      "type": "int",
+      "defaultValue": 7,
+      "metadata": {
+        "description": "The time in minutes of the blobs before they will be deleted"
       }
     },
     "location": {
@@ -26,12 +33,26 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "repoURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/nulllogicone/ExpireBlobFunction.git",
+      "metadata": {
+        "description": "The URL for the GitHub repository that contains the project to deploy."
+      }
+    },
+    "branch": {
+      "type": "string",
+      "defaultValue": "master",
+      "metadata": {
+        "description": "The branch of the GitHub repository to use."
+      }
     }
   },
   "variables": {
     "functionAppName": "[parameters('appName')]",
     "hostingPlanName": "[parameters('appName')]",
-    "storageAccountName": "[parameters('storageName')]",
+    "storageAccountName": "[parameters('storageAccountName')]",
     "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
   },
   "resources": [
@@ -52,12 +73,8 @@
       "name": "[variables('functionAppName')]",
       "location": "[parameters('location')]",
       "kind": "functionapp",
-      "tags": {
-        "CreatedBy": "Frederic"
-      },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       ],
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
@@ -81,15 +98,38 @@
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~1"
+              "value": "beta"
             },
             {
               "name": "WEBSITE_NODE_DEFAULT_VERSION",
               "value": "6.5.0"
+            },
+            {
+              "name": "ContainerName",
+              "value": "[parameters('containerName')]"
+            },
+            {
+              "name": "MinutesToLive",
+              "value": "[parameters('minutesToLive')]"
             }
           ]
         }
-      }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[parameters('repoURL')]",
+            "branch": "[parameters('branch')]",
+            "IsManualIntegration": true
+          }
+        }
+      ]
     }
   ]
 }

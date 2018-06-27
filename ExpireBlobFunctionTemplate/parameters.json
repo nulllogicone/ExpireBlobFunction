@@ -2,9 +2,17 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "hostingPlanName": {
-      "value": null
+    "appName": {
+      "value": "expblobfunc23452"
     },
-    "resourceGroupName": { "value": null }
+    "storageAccountName": {
+      "value": "expireblobfunction"
+    },
+    "containerName": {
+      "value": "example-blobs"
+    },
+    "minutesToLive": {
+      "value": 13
+    }
   }
 }
