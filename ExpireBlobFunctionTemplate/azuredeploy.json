@@ -22,9 +22,9 @@
     },
     "minutesToLive": {
       "type": "int",
-      "defaultValue": 7,
+      "defaultValue": 43200,
       "metadata": {
-        "description": "The time in minutes of the blobs before they will be deleted"
+        "description": "The time in minutes of the blobs before they will be deleted (default 30 days)"
       }
     },
     "location": {
@@ -61,6 +61,9 @@
       "apiVersion": "2015-04-01",
       "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",
+      "tags": {
+        "DeployedFrom": "https://github.com/nulllogicone/ExpireBlobFunction"
+      },
       "properties": {
         "name": "[variables('hostingPlanName')]",
         "computeMode": "Dynamic",
@@ -74,8 +77,12 @@
       "location": "[parameters('location')]",
       "kind": "functionapp",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('microsoft.insights/components', variables('functionAppName'))]"
       ],
+      "tags": {
+        "DeployedFrom": "https://github.com/nulllogicone/ExpireBlobFunction"
+      },
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
@@ -111,6 +118,10 @@
             {
               "name": "MinutesToLive",
               "value": "[parameters('minutesToLive')]"
+            },
+            {
+              "name": "AppInsights_InstrumentationKey",
+              "value": "[reference(concat('microsoft.insights/components/', variables('functionAppName'))).InstrumentationKey]"
             }
           ]
         }
@@ -130,6 +141,21 @@
           }
         }
       ]
+    },
+    {
+      "type": "microsoft.insights/components",
+      "kind": "other",
+      "name": "[variables('functionAppName')]",
+      "apiVersion": "2014-04-01",
+      "location": "[parameters('location')]",
+      "tags": {
+        "DeployedFrom": "https://github.com/nulllogicone/ExpireBlobFunction"
+      },
+      "scale": null,
+      "properties": {
+        "ApplicationId": "[variables('functionAppName')]"
+      },
+      "dependsOn": []
     }
   ]
 }
