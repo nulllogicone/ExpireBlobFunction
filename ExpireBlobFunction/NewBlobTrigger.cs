@@ -9,11 +9,19 @@ namespace ExpireBlobFunction
 {
     public static class NewBlobTrigger
     {
+        /// <summary>
+        /// Every new blob 
+        /// </summary>
+        /// <param name="myBlob"></param>
+        /// <param name="name"></param>
+        /// <param name="toDeleteBlobsTable"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("NewBlobTrigger")]
         public static async Task Run(
             [BlobTrigger("%ContainerName%/{name}", Connection = "")]CloudBlockBlob myBlob,
             string name,
-            [Table("todeleteblobs")]CloudTable toDeleteBlobsTable,
+            [Table("ToDeleteBlobs")]CloudTable toDeleteBlobsTable,
             TraceWriter log)
         {
             log.Info($"C# Blob trigger for blob\n Name:{myBlob.Uri.AbsoluteUri} ");

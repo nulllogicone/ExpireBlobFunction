@@ -16,7 +16,7 @@ namespace ExpireBlobFunction
         [FunctionName("RemoveExpiredBlobs")]
         public static async Task Run(
             [TimerTrigger("%DeleteBlobCronExpression%")]TimerInfo myTimer,
-            [Table("todeleteblobs")] CloudTable toDeleteBlobsTable,
+            [Table("ToDeleteBlobs")] CloudTable toDeleteBlobsTable,
             TraceWriter log)
         {
             log.Info($"C# Timer trigger function executed at: {DateTime.Now}");
