@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ExpireBlobFunction.Utils;
 using Microsoft.Azure;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -13,19 +14,26 @@ namespace ExpireBlobFunction
 {
     public static class RemoveExpiredBlobs
     {
+        /// <summary>
+        /// Scheduled trigger calls this Function to delete blobs
+        /// </summary>
+        /// <param name="myTimer"></param>
+        /// <param name="toDeleteBlobsTable"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("RemoveExpiredBlobs")]
         public static async Task Run(
             [TimerTrigger("%DeleteBlobCronExpression%")]TimerInfo myTimer,
-            [Table("todeleteblobs")] CloudTable toDeleteBlobsTable,
+            [Table("ToDeleteBlobs")] CloudTable toDeleteBlobsTable,
             TraceWriter log)
         {
-            log.Info($"C# Timer trigger function executed at: {DateTime.Now}");
+            log.Info($"C# Timer trigger RemoveExpiredBlobs function executed at: {DateTime.Now}");
 
             var constr = Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process);
             var storageAccount = CloudStorageAccount.Parse(constr);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            var deleteOlderThanTicks = OliAzurePack.ChronologicalTime.ReverseChronologicalValue;
+            var deleteOlderThanTicks = ChronologicalTime.ReverseChronologicalValue;
             var filter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.GreaterThanOrEqual, deleteOlderThanTicks);
             var query = new TableQuery<ToDeleteBlob>().Where(filter);
             var records = await toDeleteBlobsTable.ExecuteQuerySegmentedAsync(query, null);
