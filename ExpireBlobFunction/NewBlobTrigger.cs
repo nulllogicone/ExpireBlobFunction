@@ -1,9 +1,7 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using ExpireBlobFunction.Utils;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -26,9 +24,9 @@ namespace ExpireBlobFunction
             [BlobTrigger("%ContainerName%/{name}", Connection = "")]CloudBlockBlob newBlob,
             string name,
             [Table("ToDeleteBlobs")]CloudTable toDeleteBlobsTable,
-            TraceWriter log)
+            ILogger log)
         {
-            log.Info($"C# Blob trigger for blob\n Name:{newBlob.Uri.AbsoluteUri} ");
+            log.LogInformation($"C# Blob trigger for blob\n Name:{newBlob.Uri.AbsoluteUri} ");
 
             // config
             int minutesToLive = int.Parse(Environment.GetEnvironmentVariable("MinutesToLive", EnvironmentVariableTarget.Process));

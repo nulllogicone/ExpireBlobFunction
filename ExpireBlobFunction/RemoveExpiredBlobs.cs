@@ -1,13 +1,9 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using ExpireBlobFunction.Utils;
-using Microsoft.Azure;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace ExpireBlobFunction
@@ -25,9 +21,9 @@ namespace ExpireBlobFunction
         public static async Task Run(
             [TimerTrigger("%DeleteBlobCronExpression%")]TimerInfo myTimer,
             [Table("ToDeleteBlobs")] CloudTable toDeleteBlobsTable,
-            TraceWriter log)
+            ILogger log)
         {
-            log.Info($"C# Timer trigger RemoveExpiredBlobs function executed at: {DateTime.Now}");
+            log.LogInformation($"C# Timer trigger RemoveExpiredBlobs function executed at: {DateTime.Now}");
 
             var constr = Environment.GetEnvironmentVariable("AzureWebJobsStorage", EnvironmentVariableTarget.Process);
             var storageAccount = CloudStorageAccount.Parse(constr);
@@ -45,7 +41,7 @@ namespace ExpireBlobFunction
 
                 var deleteRecord = TableOperation.Delete(record);
                 await toDeleteBlobsTable.ExecuteAsync(deleteRecord);
-                log.Info($"Deleted {record.BlobName}");
+                log.LogInformation($"Deleted {record.BlobName}");
             }
         }
     }
