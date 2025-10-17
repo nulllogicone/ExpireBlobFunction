@@ -16,7 +16,7 @@ This was hard to maintain and sometimes I forgot to run the script for a while. 
 
 You can deploy the Functions to your subscription / resource group by clicking the button
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/nulllogicone/ExpireBlobFunction/master/ExpireBlobFunctionTemplate/azuredeploy.json)  
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnulllogicone%2FExpireBlobFunction%2Fmaster%2FExpireBlobFunctionTemplate%2Fazuredeploy.json)  
 
 ### It will
 - Create an Azure Function resource
@@ -35,7 +35,7 @@ You can always change all app settings after deployment in the Azure portal.
 
 ### Remarks
 I wrote this project mainly to experiment with the 'Deploy to Azure button' and learn about ARM templates.  
-**It is not fully tested and should not be used for critical production scenarios.** Please create issues or fork to contribute.
+**It is not fully tested and should not be used for critical production scenarios.** Please create issues of fork to contribute.
 
 
 
