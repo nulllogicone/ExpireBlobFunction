@@ -16,7 +16,7 @@ This was hard to maintain and sometimes I forgot to run the script for a while. 
 
 You can deploy the Functions to your subscription / resource group by clicking the button
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnulllogicone%2FExpireBlobFunction%2Fmaster%2FExpireBlobFunctionTemplate%2Fazuredeploy.json)  
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnulllogicone%2FExpireBlobFunction%2Fmaster%2FExpireBlobFunctionTemplate%2Fazuredeploy.json)  
 
 ### It will
 - Create an Azure Function resource
